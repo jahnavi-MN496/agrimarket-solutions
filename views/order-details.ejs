@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details - AgriMarket</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .order-summary-card { border: 1px solid #e0e0e0; border-radius: 10px; margin-top: 30px; }
+        .order-item-img { width: 60px; height: 60px; object-fit: cover; border-radius: 5px; }
+        .badge-status { font-size: 1rem; }
+        .review-form-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 0;
+        }
+        .review-form-row select,
+        .review-form-row input[type="text"] {
+            border-radius: 8px;
+            border: 1.5px solid #c8e6c9;
+            background: #f8faf7;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-size: 1rem;
+        }
+        .review-form-row select:focus,
+        .review-form-row input[type="text"]:focus {
+            border-color: #2d5a27;
+            background: #e8f5e9;
+            box-shadow: 0 2px 8px rgba(44,90,39,0.10);
+        }
+        .review-form-row button {
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 1rem;
+            background-color: #2d5a27;
+            border-color: #2d5a27;
+            padding: 0.5rem 1.5rem;
+            transition: background 0.2s, border 0.2s;
+        }
+        .review-form-row button:hover {
+            background-color: #1a3d1a;
+            border-color: #1a3d1a;
+        }
+        @media (max-width: 600px) {
+            .review-form-row { flex-direction: column; gap: 8px; }
+            .review-form-row button { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid my-5 px-2" style="padding-top: 70px;">
+        <h1 class="mb-4"><i class="fas fa-receipt me-2"></i>Order Details</h1>
+        <div class="order-summary-card p-4">
+            <div class="mb-3">
+                <strong>Order ID:</strong> <%= order._id %><br>
+                <!-- <strong>Status:</strong> <%= order.status %> --><br>
+                <strong>Placed On:</strong> <%= order.createdAt.toLocaleString() %>
+            </div>
+            <hr>
+            <h5>Items</h5>
+            <ul class="list-group mb-3">
+                <% order.items.forEach(function(item) { %>
+                    <li class="list-group-item d-flex flex-column flex-md-row align-items-center">
+                        <img src="<%= item.product.image %>" alt="<%= item.product.name %>" class="order-item-img me-3" onerror="this.src='https://dummyimage.com/60x60/cccccc/000000&text=Product'">
+                        <div class="flex-grow-1">
+                            <strong><%= item.product.name %></strong><br>
+                            <span class="text-muted">Qty: <%= item.quantity %></span><br>
+                            <span class="text-muted">Price: $<%= item.price.toFixed(2) %></span><br>
+                            <span class="text-muted">Vendor: <%= item.product.vendor && item.product.vendor.username ? item.product.vendor.username : 'Unknown Vendor' %></span>
+                        </div>
+                        <!-- <span class="badge badge-status bg-info ms-3"><%= item.status %></span> -->
+                    </li>
+                    <% if (item.status === 'Delivered') { %>
+                    <li class="list-group-item">
+                        <form action="/customer/review" method="POST" class="review-form-row">
+                            <input type="hidden" name="productId" value="<%= item.product._id %>">
+                            <input type="hidden" name="orderId" value="<%= order._id %>">
+                            <select name="rating" class="form-select" style="max-width:120px;" required>
+                                <option value="">Rating</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                            <input type="text" name="comment" class="form-control" placeholder="Write a review..." required style="min-width:180px;">
+                            <button type="submit" class="btn btn-primary">Submit Review</button>
+                        </form>
+                        <div class="mt-2">
+                            <h6 class="mb-1">Reviews:</h6>
+                            <% if (item.product.reviews && item.product.reviews.length > 0) { %>
+                                <% item.product.reviews.forEach(function(review) { %>
+                                    <div class="border rounded p-2 mb-1">
+                                        <strong><%= review.reviewer %></strong> - <span class="text-warning"><%= '★'.repeat(review.rating) %></span><br>
+                                        <span class="text-muted small"><%= review.comment %></span>
+                                    </div>
+                                <% }); %>
+                            <% } else { %>
+                                <span class="text-muted small">No reviews yet.</span>
+                            <% } %>
+                        </div>
+                    </li>
+                    <% } %>
+                <% }); %>
+            </ul>
+            <div class="d-flex justify-content-between align-items-center">
+                <strong>Total Amount:</strong>
+                <span class="fs-5 text-success">$<%= order.totalAmount.toFixed(2) %></span>
+            </div>
+            <a href="/customer/orders" class="btn btn-outline-primary mt-4"><i class="fas fa-arrow-left me-1"></i>Back to Orders</a>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - AgriMarket</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: #f8f9fa; }
+        .signup-card {
+            max-width: 400px;
+            margin: 60px auto;
+            border-radius: 12px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+            border: 1px solid #e0e0e0;
+        }
+        .agrimarket-logo {
+            color: #2d5a27;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .btn-primary {
+            background-color: #2d5a27;
+            border-color: #2d5a27;
+        }
+        .btn-primary:hover {
+            background-color: #1a3d1a;
+            border-color: #1a3d1a;
+        }
+        a { color: #2d5a27; }
+        a:hover { color: #1a3d1a; }
+        /* Custom input styling */
+        input.form-control, select.form-select {
+            border-radius: 8px;
+            border: 1px solid #b5c7b3;
+            transition: box-shadow 0.2s, border-color 0.2s;
+        }
+        input.form-control:focus, select.form-select:focus {
+            border-color: #2d5a27;
+            box-shadow: 0 0 0 2px #b7e4c7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid px-2">
+        <div class="signup-card card p-4 mx-auto w-100" style="max-width:400px;">
+            <div class="text-center">
+                <span class="agrimarket-logo"><i class="fas fa-leaf me-2"></i>AgriMarket</span>
+                <h2 class="mb-4">Sign Up</h2>
+            </div>
+            <% if (message) { %>
+                <div class="alert alert-<%= status === 'success' ? 'success' : 'danger' %> text-center">
+                    <%= message %>
+                </div>
+            <% } %>
+            <form id="signupForm" action="/signup" method="POST" autocomplete="off">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" autocomplete="off" required>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" autocomplete="off" required>
+                </div>
+                <div class="mb-3">
+                    <label for="role" class="form-label">Role</label>
+                    <select class="form-select" id="role" name="role" required onchange="toggleAddress()">
+                        <option value="customer">Customer</option>
+                        <option value="vendor">Vendor</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="mb-3" id="address-group">
+                    <label for="address" class="form-label">Address</label>
+                    <input type="text" class="form-control" id="address" name="address" autocomplete="off">
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" autocomplete="off" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+                <a href="/login" class="btn btn-primary w-100 mt-3" style="background-color: #2d5a27; border-color: #2d5a27;">Already have an account? Login</a>
+            </form>
+        </div>
+    </div>
+    <script>
+    function toggleAddress() {
+        var role = document.getElementById('role').value;
+        var addressGroup = document.getElementById('address-group');
+        if (role === 'customer') {
+            addressGroup.style.display = 'block';
+            document.getElementById('address').setAttribute('required', 'required');
+        } else {
+            addressGroup.style.display = 'none';
+            document.getElementById('address').removeAttribute('required');
+        }
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleAddress();
+        var hasMessage = '<%= !!message %>';
+        if (hasMessage === 'true') {
+            document.getElementById('signupForm').reset();
+        }
+    });
+    </script>
+</body>
+</html> 

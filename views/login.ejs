@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - AgriMarket</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: #f8f9fa; }
+        .login-card {
+            max-width: 400px;
+            margin: 60px auto;
+            border-radius: 12px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+            border: 1px solid #e0e0e0;
+        }
+        .agrimarket-logo {
+            color: #2d5a27;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .btn-primary {
+            background-color: #2d5a27;
+            border-color: #2d5a27;
+        }
+        .btn-primary:hover {
+            background-color: #1a3d1a;
+            border-color: #1a3d1a;
+        }
+        a { color: #2d5a27; }
+        a:hover { color: #1a3d1a; }
+        /* Custom style for sign up link */
+        .signup-link {
+            color: #2d5a27;
+            text-decoration: underline;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .signup-link:hover {
+            color: #1a3d1a;
+            text-decoration: underline wavy;
+            letter-spacing: 0.5px;
+        }
+        /* Custom input styling */
+        input.form-control, select.form-select {
+            border-radius: 8px;
+            border: 1px solid #b5c7b3;
+            transition: box-shadow 0.2s, border-color 0.2s;
+        }
+        input.form-control:focus, select.form-select:focus {
+            border-color: #2d5a27;
+            box-shadow: 0 0 0 2px #b7e4c7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid px-2">
+        <div class="login-card card p-4 mx-auto w-100" style="max-width:400px;">
+            <div class="text-center">
+                <span class="agrimarket-logo"><i class="fas fa-leaf me-2"></i>AgriMarket</span>
+                <h2 class="mb-4">Login</h2>
+            </div>
+            <% if (message) { %>
+                <div class="alert alert-<%= status === 'success' ? 'success' : 'danger' %> text-center">
+                    <%= message %>
+                </div>
+            <% } %>
+            <form id="loginForm" action="/login" method="POST" autocomplete="off">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" autocomplete="off" required>
+                </div>
+                <div class="mb-3">
+                    <label for="role" class="form-label">Role</label>
+                    <select class="form-select" id="role" name="role" required>
+                        <option value="customer">Customer</option>
+                        <option value="vendor">Vendor</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" autocomplete="off" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Login</button>
+                <a href="/signup" class="btn btn-primary w-100 mt-3" style="background-color: #2d5a27; border-color: #2d5a27;">Don't have an account? Sign Up</a>
+            </form>
+        </div>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var hasMessage = '<%= !!message %>';
+        if (hasMessage === 'true') {
+            document.getElementById('loginForm').reset();
+        }
+    });
+    </script>
+</body>
+</html> 

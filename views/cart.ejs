@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriMarket - Shopping Cart</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .navbar-brand {
+            font-weight: bold;
+            color: #2d5a27 !important;
+        }
+        .navbar-nav .nav-link {
+            color: #2d5a27 !important;
+            font-weight: 500;
+        }
+        .navbar-nav .nav-link:hover {
+            color: #1a3d1a !important;
+        }
+        .search-form {
+            max-width: 400px;
+        }
+        .btn-primary {
+            background-color: #2d5a27;
+            border-color: #2d5a27;
+        }
+        .btn-primary:hover {
+            background-color: #1a3d1a;
+            border-color: #1a3d1a;
+        }
+        .footer {
+            background-color: #2d5a27;
+            color: white;
+            padding: 20px 0;
+            margin-top: 50px;
+        }
+        .cart-item {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .cart-item img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        .quantity-control {
+            width: 120px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/customer/products">
+                <i class="fas fa-leaf me-2"></i>AgriMarket
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/customer/products">
+                            <i class="fas fa-store me-1"></i>Products
+                        </a>
+                    </li>
+                </ul>
+                <!-- Search Form -->
+                <form class="d-flex search-form me-3" action="/customer/products" method="GET">
+                    <input class="form-control me-2" type="search" name="search" placeholder="Search products...">
+                    <button class="btn btn-outline-success" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+                <ul class="navbar-nav">
+                    <% if (typeof user !== 'undefined' && user) { %>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/customer/profile">
+                                <i class="fas fa-user me-1"></i>Profile
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/logout">
+                                <i class="fas fa-sign-out-alt me-1"></i>Logout
+                            </a>
+                        </li>
+                    <% } else { %>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/login">
+                                <i class="fas fa-sign-in-alt me-1"></i>Login
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/signup">
+                                <i class="fas fa-user-plus me-1"></i>Sign Up
+                            </a>
+                        </li>
+                    <% } %>
+                    <% let cartCount = 0; if (user && user.cart) { user.cart.forEach(item => { if (item.product && item.product.available && item.product.stock > 0) { cartCount += item.quantity; } }); } %>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/customer/cart">
+                            <i class="fas fa-shopping-cart me-1"></i>Cart
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/customer/orders">
+                            <i class="fas fa-list me-1"></i>Orders
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container-fluid my-4 px-2" style="padding-top: 70px;">
+        <%
+            let subtotal = 0;
+            let shipping = 0;
+            let tax = 0;
+            let total = 0;
+
+            if (typeof cartItems !== 'undefined' && cartItems.length > 0) {
+                cartItems.forEach(item => {
+                    if (item.product && item.product.available && item.product.stock > 0) {
+                        subtotal += item.product.price * item.quantity;
+                    }
+                });
+                shipping = subtotal > 0 ? 2.99 : 0;
+                tax = subtotal * 0.1;
+                total = subtotal + shipping + tax;
+            }
+        %>
+
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mb-4">
+                    <i class="fas fa-shopping-cart me-2"></i>Shopping Cart
+                </h1>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <!-- Cart Items -->
+            <div class="col-lg-8 col-12 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4">Cart Items (<%= cartItems.length %>)</h5>
+                        <% if (cartItems.length === 0) { %>
+                            <div class="alert alert-info mt-4">Your cart is empty.</div>
+                        <% } else { %>
+                            <% cartItems.forEach(function(item, idx) { %>
+                                <% if (item.product && item.product.available && item.product.stock > 0) { %>
+                                    <div class="cart-item">
+                                        <div class="row align-items-center g-0">
+                                            <div class="col-4 col-md-2 d-flex flex-column align-items-center justify-content-center mb-2 mb-md-0">
+                                                <img src="<%= item.product.image %>" alt="<%= item.product.name %>"
+                                                     onerror="this.src='https://dummyimage.com/80x80/cccccc/000000&text=Product'" class="mb-2">
+                                                <form action="/customer/cart/delete" method="POST">
+                                                    <input type="hidden" name="productId" value="<%= item.product._id %>">
+                                                    <button class="btn btn-outline-danger btn-sm" type="submit"><i class="fas fa-trash"></i></button>
+                                                </form>
+                                            </div>
+                                            <div class="col-8 col-md-4">
+                                                <h6 class="mb-1"><%= item.product.name %></h6>
+                                                <p class="text-muted mb-0"><%= item.product.category %></p>
+                                                <p class="text-muted mb-1"><i class="fas fa-user me-1"></i>Vendor: <strong><%= item.product.vendor && item.product.vendor.username ? item.product.vendor.username : 'Unknown Vendor' %></strong></p>
+                                            </div>
+                                            <div class="col-6 col-md-2 text-center">
+                                                <span class="text-success fw-bold">$<%= item.product.price.toFixed(2) %></span>
+                                            </div>
+                                            <div class="col-12 col-md-4 d-flex flex-column align-items-center justify-content-center gap-2 mt-2 mt-md-0">
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <form action="/customer/cart/update" method="POST" class="d-inline me-1">
+                                                        <input type="hidden" name="productId" value="<%= item.product._id %>">
+                                                        <input type="hidden" name="change" value="-1">
+                                                        <button class="btn btn-outline-secondary btn-sm" type="submit">-</button>
+                                                    </form>
+                                                    <input type="number" class="form-control text-center mx-1" value="<%= item.quantity %>" min="1" id="qty-<%= item.product._id %>" readonly style="width: 60px;">
+                                                    <form action="/customer/cart/update" method="POST" class="d-inline ms-1">
+                                                        <input type="hidden" name="productId" value="<%= item.product._id %>">
+                                                        <input type="hidden" name="change" value="1">
+                                                        <button class="btn btn-outline-secondary btn-sm" type="submit">+</button>
+                                                    </form>
+                                                </div>
+                                                <form action="/customer/cart/pay" method="POST" class="w-100">
+                                                    <input type="hidden" name="productId" value="<%= item.product._id %>">
+                                                    <input type="hidden" name="quantity" value="<%= item.quantity %>">
+                                                    <button class="btn btn-success btn-sm w-100" type="submit">
+                                                        <i class="fas fa-credit-card me-1"></i>Proceed to Payment
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% } %>
+                            <% }); %>
+                        <% } %>
+                        <div class="text-center mt-4">
+                            <a href="/customer/products" class="btn btn-outline-primary">
+                                <i class="fas fa-arrow-left me-1"></i>Continue Shopping
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4">Order Summary</h5>
+                        <% if (cartItems.length === 0) { %>
+                            <div class="alert alert-info mt-4">Your cart is empty.</div>
+                        <% } else { %>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Subtotal (<%= cartItems.length %> items):</span>
+                                <span>$<%= subtotal.toFixed(2) %></span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Shipping:</span>
+                                <span>$<%= shipping.toFixed(2) %></span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Tax:</span>
+                                <span>$<%= tax.toFixed(2) %></span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between mb-3">
+                                <strong>Total:</strong>
+                                <strong class="text-success">$<%= total.toFixed(2) %></strong>
+                            </div>
+                            <button class="btn btn-primary w-100 mb-2">
+                                <i class="fas fa-credit-card me-1"></i>Proceed to Checkout
+                            </button>
+                            <button class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-save me-1"></i>Save for Later
+                            </button>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-end mt-4">
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Order Summary</h5>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal</span>
+                            <span>$<%= subtotal.toFixed(2) %></span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Shipping</span>
+                            <span>$<%= shipping.toFixed(2) %></span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Tax</span>
+                            <span>$<%= tax.toFixed(2) %></span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="fw-bold">Total</span>
+                            <span class="fw-bold text-success">$<%= total.toFixed(2) %></span>
+                        </div>
+                        <% if (cartItems.length > 0) { %>
+                        <form action="/customer/cart/payall" method="POST">
+                            <button class="btn btn-success w-100" type="submit">
+                                <i class="fas fa-credit-card me-1"></i>Proceed to Payment
+                            </button>
+                        </form>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>AgriMarket</h5>
+                    <p>Fresh farm products delivered to your doorstep.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p>&copy; 2024 AgriMarket. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    function updateQuantity(productId, change) {
+        const input = document.getElementById(`qty-${productId}`);
+        let newValue = Math.max(1, parseInt(input.value) + change);
+        input.value = newValue;
+        // In a real app, send AJAX request to update cart in backend
+    }
+
+    function removeItem(productId) {
+        if (confirm('Are you sure you want to remove this item from your cart?')) {
+            // In a real app, send AJAX request to remove item from cart in backend
+            alert('Item removed from cart!');
+        }
+    }
+    </script>
+</body>
+</html> 
